@@ -1,0 +1,39 @@
+name: Apple TV Watcher
+
+on:
+  schedule:
+    # Toutes les 15 minutes (minimum pratique fiable sur GitHub Actions)
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}  # permet de le lancer manuellement depuis l'onglet Actions
+
+permissions:
+  contents: write  # nécessaire pour committer seen_products.json
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dépendances
+        run: pip install requests beautifulsoup4
+
+      - name: Vérifier la disponibilité
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python apple_tv_watcher.py --once
+
+      - name: Sauvegarder l'état (produits déjà vus)
+        run: |
+          git config user.name "apple-tv-watcher-bot"
+          git config user.email "actions@github.com"
+          git add seen_products.json
+          git diff --quiet --cached || git commit -m "update seen products"
+          git push
