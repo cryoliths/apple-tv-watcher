@@ -2,8 +2,8 @@ name: Apple TV Watcher
 
 on:
   schedule:
-    # Toutes les 15 minutes (minimum pratique fiable sur GitHub Actions)
-    - cron: "*/15 * * * *"
+    # Toutes les 5 minutes (minimum pratique fiable sur GitHub Actions)
+    - cron: "*/5 * * * *"
   workflow_dispatch: {}  # permet de le lancer manuellement depuis l'onglet Actions
 
 permissions:
